@@ -57,25 +57,32 @@ def makeMatrix(molecs, masses):
             matrix[mass_index[mass_id], molec_index[molec_name]] = frac
             mass_is_used[mass_index[mass_id]] = True
     rank = np.linalg.matrix_rank(matrix)
-    print("   computing {n_molec} values from {n_used_masses} values with a matrix of rank {rank}"
+    print("    computing {n_molec} values from {n_used_masses} values with a matrix of rank {rank}"
         .format(n_molec= len(molecs), n_used_masses= sum(mass_is_used), rank= rank))
     if rank < len(molecs):
-        raise RuntimeError("Rank of matrix is less than the number of variables. Unsolvable.")
+        raise RuntimeError("Rank of matrix is less than the number of variables. Solution is ambiguous.")
     return matrix, mass_index, molec_index, mass_is_used
 
-def analyzeMatrix(molecs, matrix, outpath = None):
+def analyzeMatrix(molecs, matrix, weights, outpath = None):
     nmasses, nmolecs = matrix.shape
-    b = np.identity(nmasses)
-    solution_matrix, residual, rank, singular_vals = np.linalg.lstsq(matrix, b, rcond= None)
+    vals = np.identity(nmasses)
+    solvematrix = matrix
+    solvevals = vals
+    if weights is not None:
+        solvematrix = (matrix.T * weights).T
+        solvevals = vals.dot(weights)
+    solution_matrix, residual, rank, singular_vals = np.linalg.lstsq(solvematrix, solvevals, rcond= None)
     condition_value = singular_vals[0]/singular_vals[-1]
     print('    matrix condition value (more is worse): {cond}'.format(cond= condition_value))
     if outpath:
         with open(appendedToFileName(outpath, '_matrix'), 'w') as f:
-            f.write('molecs = ')
             import pprint
+            f.write('molecs = ')
             pprint.pprint(molecs, stream= f)
+            print('weights', file= f)
+            np.savetxt(f, weights, delimiter='\t')
             print('condition value = {cond}'.format(cond= condition_value), file= f)
-            print('matrix', file= f)
+            print('matrix (unweighted)', file= f)
             np.savetxt(f, matrix, delimiter='\t')
             print('inverse matrix', file= f)
             np.savetxt(f, solution_matrix, delimiter='\t')
@@ -86,8 +93,13 @@ def appendedToFileName(path, suffix):
         i_dot = len(path)
     return path[0:i_dot] + suffix + path[i_dot:]
 
-def solvePoint(matrix, vals):
-    x, residual, rank, singular_vals = np.linalg.lstsq(matrix, vals, rcond= None)
+def solvePoint(matrix, vals, weights = None):
+    solvematrix = matrix
+    solvevals = vals
+    if weights is not None:
+        solvematrix = (matrix.T * weights).T
+        solvevals = np.array(vals) * weights
+    x, residual, rank, singular_vals = np.linalg.lstsq(solvematrix, solvevals, rcond= None)
     residuals = np.array(vals) - matrix.dot(x)
     return x, residuals
 
@@ -97,8 +109,14 @@ def val(txt):
         return float(txt)
     except ValueError:
         return None
+        
+def makeWeightsVec(masses, mass_index, weights_dict):
+    weights_vec = np.ones(len(masses))
+    for mass_id, wgt in weights_dict.items():
+        weights_vec[mass_index[mass_id]] = wgt
+    return weights_vec
 
-def processFile(filepath, molecs, outpath = None):
+def processFile(filepath, molecs, weights = {}, outpath = None):
     if outpath is None:
         outpath = appendedToFileName(filepath, '_proc')
             
@@ -116,14 +134,15 @@ def processFile(filepath, molecs, outpath = None):
                         in_header = False
                         masses = split
                         matrix, mass_index, molec_index, mass_is_used = makeMatrix(molecs, masses)
-                        analyzeMatrix(molecs, matrix, outpath)
+                        weights_vec = makeWeightsVec(masses, mass_index, weights)
+                        analyzeMatrix(molecs, matrix, weights_vec, outpath)
                         molec_list = [molec[0] for molec in molecs]
                         used_mass_list = ['rd' + mass_id for (i, mass_id) in enumerate(masses) if mass_is_used[i]]
                         output.append('\t'.join(masses + molec_list + used_mass_list))
                 else: #in data
                     if len(split) >= len(masses):
                         vals = [val(it) for it in split]
-                        molv, residuals = solvePoint(matrix, vals)
+                        molv, residuals = solvePoint(matrix, vals, weights_vec)
                         outputvals = vals + list(molv) + [v for (i, v) in enumerate(residuals) if mass_is_used[i]]
                         output.append(
                             '\t'.join([str(v) for v in outputvals])
