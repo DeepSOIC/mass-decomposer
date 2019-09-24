@@ -63,7 +63,7 @@ def makeMatrix(molecs, masses):
         raise RuntimeError("Rank of matrix is less than the number of variables. Unsolvable.")
     return matrix, mass_index, molec_index, mass_is_used
 
-def analyzeMatrix(matrix, outpath = None):
+def analyzeMatrix(molecs, matrix, outpath = None):
     nmasses, nmolecs = matrix.shape
     b = np.identity(nmasses)
     solution_matrix, residual, rank, singular_vals = np.linalg.lstsq(matrix, b, rcond= None)
@@ -71,6 +71,9 @@ def analyzeMatrix(matrix, outpath = None):
     print('    matrix condition value (more is worse): {cond}'.format(cond= condition_value))
     if outpath:
         with open(appendedToFileName(outpath, '_matrix'), 'w') as f:
+            f.write('molecs = ')
+            import pprint
+            pprint.pprint(molecs, stream= f)
             print('condition value = {cond}'.format(cond= condition_value), file= f)
             print('matrix', file= f)
             np.savetxt(f, matrix, delimiter='\t')
