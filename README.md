@@ -39,6 +39,8 @@ Column names are parsed out from the first line of text in the input file that h
 
 Magnitudes for peaks of one molecule should add up to around 1 (exactness not required, but if they add up to, say, 10, condition value may be useless) 
 
+You can also specify weights for masses (also in script.py). You may want to decrease weights of "buggy" masses, such as 28, which includes CO outgassing of cathode, that may be affected by other gases being analyzed). Or you may want to increase some, to force calculation of some molecules from some peaks preferentially.
+
 2. Apply some preprocessing to the input file. Particularly, subtract background
 
 3. drag-drop the file to be processed onto `MassDecomposer.bat`.
