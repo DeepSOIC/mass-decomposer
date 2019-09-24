@@ -63,6 +63,26 @@ def makeMatrix(molecs, masses):
         raise RuntimeError("Rank of matrix is less than the number of variables. Unsolvable.")
     return matrix, mass_index, molec_index, mass_is_used
 
+def analyzeMatrix(matrix, outpath = None):
+    nmasses, nmolecs = matrix.shape
+    b = np.identity(nmasses)
+    solution_matrix, residual, rank, singular_vals = np.linalg.lstsq(matrix, b, rcond= None)
+    condition_value = singular_vals[0]/singular_vals[-1]
+    print('    matrix condition value (more is worse): {cond}'.format(cond= condition_value))
+    if outpath:
+        with open(appendedToFileName(outpath, '_matrix'), 'w') as f:
+            print('condition value = {cond}'.format(cond= condition_value), file= f)
+            print('matrix', file= f)
+            np.savetxt(f, matrix, delimiter='\t')
+            print('inverse matrix', file= f)
+            np.savetxt(f, solution_matrix, delimiter='\t')
+    
+def appendedToFileName(path, suffix):
+    i_dot = path.rfind('.')
+    if i_dot == -1:
+        i_dot = len(path)
+    return path[0:i_dot] + suffix + path[i_dot:]
+
 def solvePoint(matrix, vals):
     x, residual, rank, singular_vals = np.linalg.lstsq(matrix, vals, rcond= None)
     residuals = np.array(vals) - matrix.dot(x)
@@ -77,10 +97,7 @@ def val(txt):
 
 def processFile(filepath, masses, outpath = None):
     if outpath is None:
-        i_dot = filepath.rfind('.')
-        if i_dot == -1:
-            i_dot = len(filepath)
-        outpath = filepath[0:i_dot] + '_proc' + filepath[i_dot:]
+        outpath = appendedToFileName(filepath, '_proc')
             
     output = []
     
@@ -96,6 +113,7 @@ def processFile(filepath, masses, outpath = None):
                         in_header = False
                         masses = split
                         matrix, mass_index, molec_index, mass_is_used = makeMatrix(molecs, masses)
+                        analyzeMatrix(matrix, outpath)
                         molec_list = [molec[0] for molec in molecs]
                         used_mass_list = ['rd' + mass_id for (i, mass_id) in enumerate(masses) if mass_is_used[i]]
                         output.append('\t'.join(masses + molec_list + used_mass_list))
