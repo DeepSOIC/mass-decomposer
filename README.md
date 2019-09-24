@@ -1,5 +1,5 @@
 # mass-decomposer
-python scropt for processing mass-spectrum mass signals into molecule signals.
+python script for processing mass-spectrum mass signals into molecule signals.
 
 Takes as input:
 * list of molecules and peak magnitudes for each molecule
