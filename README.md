@@ -16,6 +16,20 @@ instructions are for Windows.
 
 0. First of all, install python with numpy. You must be able to type `python` to cmd to launch python interpreter (i.e., python.exe must be in a directory listed in PATH environment variable).
 
+<details><summary>Detais: (click to expand)</summary>
+<p>
+UNTESTED!:
+
+a. download python here: https://www.python.org/downloads/ <br>
+Install it. Tick "add python to Path" when installing.
+
+b. open command prompt. Type:
+```
+python -m pip install --user numpy
+```
+</p>
+</details>
+
 1. Edit script.py to contain your list of molecules, and mass-spectrum peak magnitudes.
 
 ```
