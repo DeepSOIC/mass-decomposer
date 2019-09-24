@@ -95,7 +95,7 @@ def val(txt):
     except ValueError:
         return None
 
-def processFile(filepath, masses, outpath = None):
+def processFile(filepath, molecs, outpath = None):
     if outpath is None:
         outpath = appendedToFileName(filepath, '_proc')
             
@@ -113,7 +113,7 @@ def processFile(filepath, masses, outpath = None):
                         in_header = False
                         masses = split
                         matrix, mass_index, molec_index, mass_is_used = makeMatrix(molecs, masses)
-                        analyzeMatrix(matrix, outpath)
+                        analyzeMatrix(molecs, matrix, outpath)
                         molec_list = [molec[0] for molec in molecs]
                         used_mass_list = ['rd' + mass_id for (i, mass_id) in enumerate(masses) if mass_is_used[i]]
                         output.append('\t'.join(masses + molec_list + used_mass_list))
