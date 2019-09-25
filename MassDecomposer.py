@@ -109,14 +109,21 @@ def val(txt):
         return float(txt)
     except ValueError:
         return None
-        
+
+def toString(number, dec_sep):
+    st = str(number)
+    if dec_sep != '.':
+        return st.replace('.', dec_sep, 1)
+    else:
+        return st
+
 def makeWeightsVec(masses, mass_index, weights_dict):
     weights_vec = np.ones(len(masses))
     for mass_id, wgt in weights_dict.items():
         weights_vec[mass_index[mass_id]] = wgt
     return weights_vec
 
-def processFile(filepath, molecs, weights = {}, outpath = None):
+def processFile(filepath, molecs, weights = {}, outpath = None, decimal_separator = '.'):
     if outpath is None:
         outpath = appendedToFileName(filepath, '_proc')
             
@@ -145,7 +152,7 @@ def processFile(filepath, molecs, weights = {}, outpath = None):
                         molv, residuals = solvePoint(matrix, vals, weights_vec)
                         outputvals = vals + list(molv) + [v for (i, v) in enumerate(residuals) if mass_is_used[i]]
                         output.append(
-                            '\t'.join([str(v) for v in outputvals])
+                            '\t'.join([toString(v, decimal_separator) for v in outputvals])
                         )
                     else:
                         print('    line #{num} has too few values, skipped.'.format(num= line_number))

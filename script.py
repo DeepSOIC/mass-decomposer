@@ -36,4 +36,4 @@ weights = {
 import MassDecomposer as MD
 import sys
 for arg in sys.argv[1:]:
-    MD.processFile(arg, molecs, weights)
+    MD.processFile(arg, molecs, weights, decimal_separator= '.')
