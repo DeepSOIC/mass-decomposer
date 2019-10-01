@@ -1,3 +1,6 @@
+# this file defines set of molecules with their mass peak magnitudes. 
+# It is recommended to put a (possibly, modified) copy of this file into the directory with 
+# your data files, then MassDecomposer.bat will pick it up automatically.
 molecs = [
     ('NO', {
         'm29Int': 0.021892103,

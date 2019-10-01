@@ -1,2 +1,2 @@
-python.exe %0\..\script.py %1
+python.exe %0\..\MassDecomposerApp.py %1
 pause
