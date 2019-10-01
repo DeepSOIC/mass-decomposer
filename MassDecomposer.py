@@ -1,4 +1,4 @@
-#example!
+#example of molecules definition
 molecs = [
     ('NO', {
         'm29Int': 0.021892103,
@@ -56,24 +56,36 @@ def makeMatrix(molecs, masses):
         for mass_id, frac in molec_masses.items():
             matrix[mass_index[mass_id], molec_index[molec_name]] = frac
             mass_is_used[mass_index[mass_id]] = True
+    
+    #test rank
     rank = np.linalg.matrix_rank(matrix)
     print("    computing {n_molec} values from {n_used_masses} values with a matrix of rank {rank}"
         .format(n_molec= len(molecs), n_used_masses= sum(mass_is_used), rank= rank))
     if rank < len(molecs):
         raise RuntimeError("Rank of matrix is less than the number of variables. Solution is ambiguous.")
+    
     return matrix, mass_index, molec_index, mass_is_used
 
 def analyzeMatrix(molecs, matrix, weights, outpath = None):
+    """analyzeMatrix(molecs, matrix, weights, outpath = None): analyzes matrix, prints basic
+    info to stdout, and extended info to a file."""
+    
+    #generate solution matrix. The solution matrix is actually here just for reference, 
+    #it is not used for actual calculations, as those should support dynamically changing weights 
     nmasses, nmolecs = matrix.shape
     vals = np.identity(nmasses)
-    solvematrix = matrix
+    solvematrix = matrix #solvematrix is a modified matrix with weights burned into it
     solvevals = vals
     if weights is not None:
         solvematrix = (matrix.T * weights).T
         solvevals = vals.dot(weights)
     solution_matrix, residual, rank, singular_vals = np.linalg.lstsq(solvematrix, solvevals, rcond= None)
+    
+    #print condition value
     condition_value = singular_vals[0]/singular_vals[-1]
     print('    matrix condition value (more is worse): {cond}'.format(cond= condition_value))
+    
+    #write extended info to file
     if outpath:
         with open(appendedToFileName(outpath, '_matrix'), 'w') as f:
             import pprint
@@ -94,6 +106,7 @@ def appendedToFileName(path, suffix):
     return path[0:i_dot] + suffix + path[i_dot:]
 
 def solvePoint(matrix, vals, weights = None):
+    """converts a single set of mass values to molecules. Returns result and residuals as arrays of values."""
     solvematrix = matrix
     solvevals = vals
     if weights is not None:
@@ -104,6 +117,7 @@ def solvePoint(matrix, vals, weights = None):
     return x, residuals
 
 def val(txt):
+    """val(txt): converts a string into a float number."""
     txt = txt.replace(",", ".")
     try:
         return float(txt)
@@ -111,6 +125,7 @@ def val(txt):
         return None
 
 def toString(number, dec_sep):
+    """toString(number, dec_sep): converts a number to a string"""
     st = str(number)
     if dec_sep != '.':
         return st.replace('.', dec_sep, 1)
@@ -118,12 +133,21 @@ def toString(number, dec_sep):
         return st
 
 def makeWeightsVec(masses, mass_index, weights_dict):
+    """converts weights in a dict to an array of numbers"""
     weights_vec = np.ones(len(masses))
     for mass_id, wgt in weights_dict.items():
         weights_vec[mass_index[mass_id]] = wgt
     return weights_vec
 
 def processFile(filepath, molecs, weights = {}, outpath = None, decimal_separator = '.'):
+    """processFile(filepath, molecs, weights = {}, outpath = None, decimal_separator = '.'):
+    molecs: list of tuples, each tuple containing a name and a dict of peak values and 
+        amplitudes [('molecule_name', {'col_name':0.35,...}),...]
+    weights: optional. Dict of weights for masses {'col_name':0.1}. Weights of columns not listed in
+        this list are assumed to be 1.0.
+    outpath: optional, file name for output file.
+    decimal_separator: optional, sets which separator is used for writing output file. Does 
+        not affect reading - there, both ',' and '.' are recognized as a decimal separator."""
     if outpath is None:
         outpath = appendedToFileName(filepath, '_proc')
             
