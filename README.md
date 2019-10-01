@@ -18,7 +18,6 @@ instructions are for Windows.
 
 <details><summary>Detais: (click to expand)</summary>
 <p>
-UNTESTED!:
 
 a. download python here: https://www.python.org/downloads/ <br>
 Install it. Tick "add python to Path" when installing.
@@ -30,7 +29,7 @@ python -m pip install --user numpy
 </p>
 </details>
 
-1. Edit script.py to contain your list of molecules, and mass-spectrum peak magnitudes.
+1. Edit MassDecomposerScript.py to contain your list of molecules, and mass-spectrum peak magnitudes. Hint: if you copy the file to your data directory and edit it there, it will be picked up instead of the default one.
 
 ```
 molecs = [
@@ -53,7 +52,7 @@ Column names are parsed out from the first line of text in the input file that h
 
 Magnitudes for peaks of one molecule should add up to around 1 (exactness not required, but if they add up to, say, 10, condition value may be useless) 
 
-You can also specify weights for masses (also in script.py). You may want to decrease weights of "buggy" masses, such as 28, which includes CO outgassing of cathode, that may be affected by other gases being analyzed). Or you may want to increase some, to force calculation of some molecules from some peaks preferentially.
+You can also specify weights for masses (also in MassDecomposerScript.py). You may want to decrease weights of "buggy" masses, such as 28, which includes CO outgassing of cathode, that may be affected by other gases being analyzed). Or you may want to increase some, to force calculation of some molecules from some peaks preferentially.
 
 2. Apply some preprocessing to the input file. Particularly, subtract background
 
