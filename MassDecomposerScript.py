@@ -2,7 +2,7 @@ __doc__ = (
 """This file defines set of molecules with their mass peak magnitudes. It also invokes the processing.
 It is recommended to put a (possibly, modified) copy of this file into the directory with 
 your data files, then MassDecomposerApp.py will pick it up automatically.
-"""
+""")
 
 #edit to define peaks for each molecule. Be sure to define all contributions to every peak used.
 molecs = [
