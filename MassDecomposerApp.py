@@ -1,3 +1,5 @@
+__doc__ = """Application script. This file is to be invoked, with data file names listed in sys.argv."""
+
 import sys
 
 arg = sys.argv[1]

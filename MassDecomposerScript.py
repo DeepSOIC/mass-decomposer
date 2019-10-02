@@ -1,6 +1,10 @@
-# this file defines set of molecules with their mass peak magnitudes. 
-# It is recommended to put a (possibly, modified) copy of this file into the directory with 
-# your data files, then MassDecomposer.bat will pick it up automatically.
+__doc__ = (
+"""This file defines set of molecules with their mass peak magnitudes. It also invokes the processing.
+It is recommended to put a (possibly, modified) copy of this file into the directory with 
+your data files, then MassDecomposerApp.py will pick it up automatically.
+"""
+
+#edit to define peaks for each molecule. Be sure to define all contributions to every peak used.
 molecs = [
     ('NO', {
         'm29Int': 0.021892103,
@@ -32,6 +36,10 @@ molecs = [
     }),    
 ]
 
+# Set weights for peaks. Higher weight mean more importance of the corresponding equation 
+# in the system. 
+# Small or zero weights can be useful to exclude peaks that are noisy, drifty, or when not all 
+# molecules that contribute to the peak are listed.
 weights = {
     'm28Int': 0.1,
 }
